@@ -1,0 +1,79 @@
+/* ============================================================================
+   Pulso · capa viva
+   ----------------------------------------------------------------------------
+   Lo que Pulso 1.1 prohíbe en la sección 10 —gradientes y sombras— tiene UNA
+   excepción declarada, y esto es esa excepción. Es la misma que corre hoy en
+   VOXIA 2, copiada tal cual.
+
+   Por qué puede existir sin contradecir la regla:
+     · El ambiente es una capa de fondo con `z-index:-1` y `pointer-events:none`.
+       No es un gradiente DENTRO de un componente —que sigue prohibido— sino
+       detrás de todos. Ningún componente lo hereda ni lo sabe.
+     · El relieve del `.neo` sale de `--shade` y `--highlight`, que son TOKENS.
+       Una sombra escrita a mano en un componente sigue estando prohibida.
+     · Todo se apaga solo: `prefers-reduced-motion`, `[data-motion="off"]` para
+       quien lo pida a mano, y `[data-hidden="true"]` para cuando la pieza no
+       está a la vista. Sin canvas, sin WebGL, sin bucle de animación en JS: son
+       transformaciones del compositor.
+
+   Lo que NO hace, y es deliberado: contadores animados, partículas, parallax.
+   Están en los antipatrones y siguen afuera.
+   ========================================================================= */
+
+/* Pulso ambiental: compositor transforms; no canvas or JavaScript frame loop. */
+:root,[data-mode="dia"]{--ambient-core:rgba(61,90,254,.2);--ambient-wash:rgba(61,90,254,.045);--ambient-front-opacity:.18;--ambient-back-opacity:.13}
+[data-mode="noche"]{--ambient-front-opacity:.48;--ambient-back-opacity:.32}
+.main-wrap{position:relative;isolation:isolate}
+.main-wrap::before,.main-wrap::after{content:"";position:fixed;pointer-events:none;z-index:-1;width:440px;height:440px;max-width:75vw;max-height:75vw;border-radius:50%;opacity:var(--ambient-front-opacity);background:radial-gradient(ellipse at center,var(--ambient-core),var(--ambient-wash) 48%,transparent 70%)}
+.main-wrap::before{top:70px;right:2vw;animation:ambient-drift 32s ease-in-out infinite alternate}
+.main-wrap::after{bottom:0;left:26vw;width:300px;height:300px;opacity:var(--ambient-back-opacity);animation:ambient-return 40s ease-in-out infinite alternate}
+[data-dialog="true"] .main-wrap::before,[data-dialog="true"] .main-wrap::after{animation-play-state:paused}
+.main>.page-heading,.main>.welcome{animation:page-arrive .3s ease-out both}
+dialog[open]{animation:dialog-arrive .18s ease-out both}
+.agent-card,.voice-card{transition:transform .18s ease-out,border-color .18s ease-out}
+@media(hover:hover){.agent-card:hover,.voice-card:hover{transform:translateY(-2px);border-color:var(--border-strong)}}
+@keyframes ambient-drift{from{transform:translate3d(0,0,0) scale(.94)}to{transform:translate3d(-28px,20px,0) scale(1.04)}}
+@keyframes ambient-return{from{transform:translate3d(0,0,0)}to{transform:translate3d(22px,-18px,0)}}
+@keyframes page-arrive{from{opacity:.25;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dialog-arrive{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+[data-hidden="true"] *,[data-hidden="true"] *::before,[data-hidden="true"] *::after{animation-play-state:paused!important}
+[data-motion="off"] *,[data-motion="off"] *::before,[data-motion="off"] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media(max-width:760px){.main-wrap::after{display:none}.main-wrap::before{width:260px;height:260px;right:0}}
+
+/* el relieve */
+.neo{height:48px;width:48px;flex-shrink:0;display:grid;place-items:center;border-radius:16px;background:var(--bg-raised);box-shadow:5px 5px 10px var(--shade),-5px -5px 10px var(--highlight);color:var(--text-body)}
+
+/* ----------------------------------------------------------------------------
+   Los mismos ganchos, con nombres del sistema y no de la app
+   ----------------------------------------------------------------------------
+   Arriba quedan los selectores tal como corren en VOXIA 2 (`.main-wrap`,
+   `.agent-card`, `.voice-card`): es la referencia literal, y se deja para que
+   una pantalla copiada de allá funcione sin tocar nada.
+
+   Abajo están los mismos efectos colgados de nombres del sistema, para una
+   pantalla nueva. Es la MISMA regla, no otra: si algún día cambia el ambiente,
+   se cambia en un lugar.
+   -------------------------------------------------------------------------- */
+.pulso-ambiente { position: relative; isolation: isolate }
+.pulso-ambiente::before, .pulso-ambiente::after {
+  content: ""; position: fixed; pointer-events: none; z-index: -1;
+  width: 440px; height: 440px; max-width: 75vw; max-height: 75vw; border-radius: 50%;
+  opacity: var(--ambient-front-opacity);
+  background: radial-gradient(ellipse at center, var(--ambient-core), var(--ambient-wash) 48%, transparent 70%);
+}
+.pulso-ambiente::before { top: 70px; right: 2vw; animation: ambient-drift 32s ease-in-out infinite alternate }
+.pulso-ambiente::after  { bottom: 0; left: 26vw; width: 300px; height: 300px; opacity: var(--ambient-back-opacity); animation: ambient-return 40s ease-in-out infinite alternate }
+[data-dialog="true"] .pulso-ambiente::before, [data-dialog="true"] .pulso-ambiente::after { animation-play-state: paused }
+
+/* La llegada de la página y del diálogo. Una vez, no en bucle. */
+.pulso-llega { animation: page-arrive .3s ease-out both }
+dialog[open] { animation: dialog-arrive .18s ease-out both }
+
+/* El levante al pasar el cursor, solo donde hay cursor de verdad. */
+.tarjeta, .bloque { transition: transform .18s ease-out, border-color .18s ease-out }
+@media (hover: hover) {
+  a.tarjeta:hover, button.tarjeta:hover, .tarjeta[tabindex]:hover { transform: translateY(-2px); border-color: var(--border-strong) }
+}
+
+@media (max-width: 760px) { .pulso-ambiente::after { display: none } .pulso-ambiente::before { width: 260px; height: 260px; right: 0 } }
