@@ -1,0 +1,139 @@
+/* ============================================================================
+   Pulso · base y componentes
+   ----------------------------------------------------------------------------
+   Las medidas son las de la sección 4 y 5 de Pulso 1.1, sin redondear:
+     escala de espaciado   8 · 16 · 24 · 32 · 48 · 64 · 96   (nada intermedio)
+     radios                botón 999 · campo 14 · tarjeta 22 · bloque 28
+     alto de control       46 px mínimo · área táctil 44 px
+     ancho de contenido    1000 px · medida de texto 66 caracteres
+   Sin sombras salvo el anillo de foco. Sin gradientes. Eso no es un gusto: es
+   lo que hace que las tres superficies —`--bg`, `--bg-raised`, `--bg-rest`—
+   alcancen. Si hace falta una cuarta, se está anidando de más.
+   ========================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 16px/1.65 Inter, system-ui, sans-serif;
+}
+
+/* --- Tipografía. Outfit NUNCA en párrafos: cansa a partir de tres líneas.
+       Mono NUNCA en prosa. ------------------------------------------------ */
+h1, h2, h3, h4 { font-family: Outfit, sans-serif; margin: 0; line-height: 1.15 }
+h1 { font-size: clamp(46px, 5vw, 68px); font-weight: 800; letter-spacing: -.045em }
+h2 { font-size: 34px; font-weight: 700; letter-spacing: -.035em }
+h3 { font-size: 17px; font-weight: 700; letter-spacing: -.02em }
+p  { margin: 8px 0 0; color: var(--text-body); max-width: 66ch }
+a  { color: var(--action-text) }
+
+/* Mono es obligatoria en montos, UF, RUT, fechas, plazos e identificadores:
+   alinea en columna y evita confundir el 0 con la O, que en un documento
+   comercial no es un detalle menor. */
+.dato, code, kbd, samp { font: 400 13px 'JetBrains Mono', monospace }
+.rotulo { font: 400 11px 'JetBrains Mono', monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted) }
+.muted { color: var(--text-muted) }
+.menor { font-size: 14px }
+
+/* En una cifra destacada el número va en Outfit 700 y la unidad en Inter con
+   `--text-muted`, para que domine el número. */
+.cifra { font: 700 40px/1.2 Outfit, sans-serif; letter-spacing: -.025em; color: var(--text) }
+.cifra span { font: 400 14px Inter, sans-serif; color: var(--text-muted); letter-spacing: 0; margin-left: 8px }
+
+/* --- Foco. No negociable, en TODO control. ---------------------------------- */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 2px;
+}
+
+/* --- Botón. UN SOLO primario por vista: con dos, nadie sabe cuál es la
+       acción principal. ---------------------------------------------------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 46px; padding: 15px 30px;
+  border: 1px solid var(--border-strong); border-radius: 999px;
+  background: transparent; color: var(--text);
+  font: 700 16px Outfit, sans-serif; text-decoration: none; white-space: nowrap;
+  cursor: pointer;
+}
+.btn:hover { background: var(--bg-rest) }
+.btn.primario { background: var(--action); border-color: var(--action); color: var(--on-action) }
+.btn.primario:hover { background: var(--action-hover) }
+.btn.fantasma { border-color: transparent; color: var(--text-muted) }
+.btn.destructivo { background: var(--bad); border-color: var(--bad); color: var(--on-action) }
+.btn.chico { font-size: 14px; padding: 10px 20px }
+.btn:disabled { background: var(--bg-rest); border-color: var(--bg-rest); color: var(--text-faint); cursor: not-allowed }
+
+/* --- Campo. En noche usa `--field-bg`, más oscuro que la tarjeta: un input
+       del mismo color que su contenedor desaparece. ------------------------ */
+label { display: block; font: 500 14px Inter, sans-serif; color: var(--text); margin-bottom: 8px }
+input, select, textarea {
+  width: 100%; min-height: 46px; padding: 0 16px;
+  background: var(--field-bg); color: var(--text);
+  border: 1px solid var(--border-strong); border-radius: 14px;
+  font: inherit; font-size: 14px; outline: none;
+}
+textarea { padding: 12px 16px; min-height: 100px; line-height: 1.65; resize: vertical }
+input:focus, select:focus, textarea:focus { border-color: var(--action); box-shadow: 0 0 0 3px var(--action-soft) }
+input::placeholder, textarea::placeholder { color: var(--text-faint) }
+input[aria-invalid="true"], textarea[aria-invalid="true"] { border-color: var(--bad) }
+.ayuda { font-size: 13px; color: var(--text-muted); margin: 8px 0 0 }
+.error { font-size: 13px; color: var(--bad-text); margin: 8px 0 0 }
+
+/* --- Etiqueta. El color NUNCA es el único portador de significado: lleva
+       texto además del color. ---------------------------------------------- */
+.etiqueta {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px; border-radius: 999px;
+  font: 500 12.5px Inter, sans-serif; white-space: nowrap;
+  background: var(--bg-rest); color: var(--text-body);
+}
+.etiqueta.action { background: var(--action-soft); color: var(--action-text); border: 1px solid var(--action-soft-br) }
+.etiqueta.warn   { background: var(--warn-soft);   color: var(--warn-text);   border: 1px solid var(--warn-soft-br) }
+.etiqueta.good   { background: var(--good-soft);   color: var(--good-text);   border: 1px solid var(--good-soft-br) }
+.etiqueta.bad    { background: var(--bad-soft);    color: var(--bad-text);    border: 1px solid var(--bad-soft-br) }
+
+/* --- Tarjeta. Sin sombra. --------------------------------------------------- */
+.tarjeta { background: var(--bg-raised); border: 1px solid var(--border); border-radius: 22px; padding: 22px }
+.bloque  { background: var(--bg-raised); border: 1px solid var(--border); border-radius: 28px; padding: 32px }
+
+/* --- Tabla. Cifras en mono y a la derecha. --------------------------------- */
+table { width: 100%; border-collapse: collapse; text-align: left }
+th {
+  font: 400 11px 'JetBrains Mono', monospace; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-muted); background: var(--bg-rest);
+}
+th, td { padding: 15px 18px; border-bottom: 1px solid var(--border) }
+tr:last-child td { border-bottom: 0 }
+td.cifra-celda { font: 400 13.5px 'JetBrains Mono', monospace; color: var(--text); text-align: right }
+
+/* --- Aviso. Dice qué pasó y qué hacer, en una frase. Sin «Error:», sin
+       disculpas, sin el mensaje crudo del sistema. ------------------------- */
+.aviso { border-radius: 14px; padding: 15px 20px; border: 1px solid var(--border); background: var(--bg-raised); color: var(--text-body) }
+.aviso b, .aviso strong { font-weight: 500 }
+.aviso.action { background: var(--action-soft); border-color: var(--action-soft-br); color: var(--action-text) }
+.aviso.warn   { background: var(--warn-soft);   border-color: var(--warn-soft-br);   color: var(--warn-text) }
+.aviso.good   { background: var(--good-soft);   border-color: var(--good-soft-br);   color: var(--good-text) }
+.aviso.bad    { background: var(--bad-soft);    border-color: var(--bad-soft-br);    color: var(--bad-text) }
+
+/* --- Layout. Alineado a la izquierda por defecto; centrado solo en hero y
+       estados vacíos. ------------------------------------------------------ */
+.contenido { max-width: 1000px; margin-inline: auto; padding-inline: 24px }
+.seccion { margin-block: 96px }
+.vacio { text-align: center; padding: 48px 24px }
+.vacio p { margin-inline: auto }
+
+@media (max-width: 760px) {
+  .seccion { margin-block: 56px }
+  .contenido { padding-inline: 16px }
+}
+
+/* La marca va inline para que lea las variables de la página: un
+   `<img src="iaxti-tokens.svg">` está aislado y no las ve. */
+.marca { display: inline-block; line-height: 0 }
+.marca svg { height: 30px; width: auto; display: block }
+.marca:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; border-radius: 4px }
